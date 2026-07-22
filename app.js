@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const STORAGE_KEY = "biz-dashboard-data-v1";
+  const STORAGE_KEY = "biz-dashboard-data-v2";
   const THEME_KEY = "biz-dashboard-theme";
 
   /* ---------------------------------------------------------------- */
