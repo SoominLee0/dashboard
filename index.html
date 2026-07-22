@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>사업관리 대시보드</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <h1 class="brand">사업관리 대시보드</h1>
+    <div class="topbar-actions">
+      <button id="btn-export" class="btn btn-ghost" type="button">내보내기</button>
+      <label class="btn btn-ghost btn-file">
+        가져오기
+        <input id="input-import" type="file" accept="application/json" hidden />
+      </label>
+      <button id="btn-theme" class="btn btn-ghost" type="button" aria-label="테마 전환">🌓</button>
+      <button id="btn-add-project" class="btn btn-primary" type="button">+ 새 프로젝트</button>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- Summary stat tiles -->
+  <section class="tiles" id="summary-tiles" aria-label="전체 요약"></section>
+
+  <!-- Charts -->
+  <section class="chart-row">
+    <div class="card">
+      <div class="card-head">
+        <h2>사업비 집행 현황</h2>
+        <p class="card-sub">프로젝트별 총 사업비 대비 집행액</p>
+      </div>
+      <div id="budget-chart" class="bar-list"></div>
+      <div class="legend">
+        <span class="legend-item"><i class="swatch swatch-spent"></i>집행액</span>
+        <span class="legend-item"><i class="swatch swatch-track"></i>잔액</span>
+        <span class="legend-item"><i class="swatch swatch-over"></i>예산초과</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>프로젝트별 진행률</h2>
+        <p class="card-sub">현재 진행률 및 일정 상태</p>
+      </div>
+      <div id="progress-chart" class="bar-list"></div>
+    </div>
+  </section>
+
+  <!-- Deadlines -->
+  <section class="card">
+    <div class="card-head">
+      <h2>마일스톤 일정</h2>
+      <p class="card-sub">임박(30일 이내) 및 지연 마일스톤</p>
+    </div>
+    <div id="deadlines-list" class="deadlines-list"></div>
+  </section>
+
+  <!-- Project filters -->
+  <section class="filters">
+    <input id="filter-search" class="input" type="search" placeholder="프로젝트명, 지원기관 검색" />
+    <select id="filter-type" class="input">
+      <option value="">전체 유형</option>
+      <option value="정부지원사업">정부지원사업</option>
+      <option value="자체사업">자체사업</option>
+      <option value="기타">기타</option>
+    </select>
+    <select id="filter-status" class="input">
+      <option value="">전체 상태</option>
+      <option value="예정">예정</option>
+      <option value="진행중">진행중</option>
+      <option value="완료">완료</option>
+      <option value="보류">보류</option>
+    </select>
+  </section>
+
+  <!-- Project grid -->
+  <section class="project-grid" id="project-grid" aria-label="프로젝트 목록"></section>
+
+</main>
+
+<!-- Project detail / edit modal -->
+<div id="modal-backdrop" class="modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-head">
+      <h2 id="modal-title">프로젝트</h2>
+      <button id="modal-close" class="btn btn-ghost btn-icon" type="button" aria-label="닫기">✕</button>
+    </div>
+
+    <div class="modal-tabs" id="modal-tabs">
+      <button class="tab-btn active" data-tab="overview" type="button">개요</button>
+      <button class="tab-btn" data-tab="budget" type="button">사업비</button>
+      <button class="tab-btn" data-tab="schedule" type="button">일정</button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Overview tab -->
+      <div class="tab-panel active" data-panel="overview">
+        <form id="form-overview" class="form-grid">
+          <label class="field">
+            <span>프로젝트명</span>
+            <input type="text" name="name" required />
+          </label>
+          <label class="field">
+            <span>유형</span>
+            <select name="type">
+              <option value="정부지원사업">정부지원사업</option>
+              <option value="자체사업">자체사업</option>
+              <option value="기타">기타</option>
+            </select>
+          </label>
+          <label class="field" id="field-agency">
+            <span>지원기관</span>
+            <input type="text" name="agency" placeholder="예: 중소벤처기업부" />
+          </label>
+          <label class="field">
+            <span>상태</span>
+            <select name="status">
+              <option value="예정">예정</option>
+              <option value="진행중">진행중</option>
+              <option value="완료">완료</option>
+              <option value="보류">보류</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>시작일</span>
+            <input type="date" name="startDate" required />
+          </label>
+          <label class="field">
+            <span>종료일</span>
+            <input type="date" name="endDate" required />
+          </label>
+          <label class="field field-wide">
+            <span>설명</span>
+            <textarea name="memo" rows="2" placeholder="사업 개요, 담당자 등"></textarea>
+          </label>
+          <label class="field">
+            <span>진행률 (%)</span>
+            <input type="number" name="progress" min="0" max="100" step="1" />
+          </label>
+          <div class="form-actions form-actions-between">
+            <button type="button" id="btn-delete-project" class="btn btn-danger-ghost">프로젝트 삭제</button>
+            <button type="submit" class="btn btn-primary">저장</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Budget tab -->
+      <div class="tab-panel" data-panel="budget">
+        <form id="form-budget-total" class="form-grid">
+          <label class="field">
+            <span>정부지원금 (원)</span>
+            <input type="number" name="governmentFund" min="0" step="10000" />
+          </label>
+          <label class="field">
+            <span>자부담금 (원)</span>
+            <input type="number" name="selfFund" min="0" step="10000" />
+          </label>
+          <div class="field field-wide budget-total-readout" id="budget-total-readout"></div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">예산 저장</button>
+          </div>
+        </form>
+
+        <hr class="divider" />
+
+        <h3 class="section-title">지출 내역</h3>
+        <form id="form-expense" class="form-grid form-grid-tight">
+          <label class="field">
+            <span>날짜</span>
+            <input type="date" name="date" required />
+          </label>
+          <label class="field">
+            <span>비목</span>
+            <select name="category">
+              <option value="인건비">인건비</option>
+              <option value="재료비">재료비</option>
+              <option value="외주비">외주비</option>
+              <option value="장비비">장비비</option>
+              <option value="여비">여비</option>
+              <option value="기타">기타</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>금액 (원)</span>
+            <input type="number" name="amount" min="0" step="1000" required />
+          </label>
+          <label class="field field-wide">
+            <span>메모</span>
+            <input type="text" name="memo" placeholder="지출 내용" />
+          </label>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-secondary">+ 지출 추가</button>
+          </div>
+        </form>
+        <div class="table-wrap">
+          <table class="table" id="expense-table">
+            <thead>
+              <tr><th>날짜</th><th>비목</th><th>금액</th><th>메모</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Schedule tab -->
+      <div class="tab-panel" data-panel="schedule">
+        <h3 class="section-title">마일스톤</h3>
+        <form id="form-milestone" class="form-grid form-grid-tight">
+          <label class="field field-wide">
+            <span>마일스톤명</span>
+            <input type="text" name="title" required placeholder="예: 중간보고서 제출" />
+          </label>
+          <label class="field">
+            <span>기한</span>
+            <input type="date" name="dueDate" required />
+          </label>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-secondary">+ 마일스톤 추가</button>
+          </div>
+        </form>
+        <div class="milestone-list" id="milestone-list"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
