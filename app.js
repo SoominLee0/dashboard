@@ -1,9 +1,10 @@
 (() => {
   "use strict";
 
-  const STORAGE_KEY = "biz-dashboard-data-v6";
+  const STORAGE_KEY = "biz-dashboard-data-v7";
   const THEME_KEY = "biz-dashboard-theme";
-  const CATEGORIES = ["인건비", "연구활동비", "재료비", "외주비", "장비비", "여비", "기타"];
+  const CATEGORIES = ["인건비", "연구재료비", "연구활동비", "기타"];
+  const ITEMIZED_CATEGORIES = ["연구재료비", "연구활동비"];
 
   /* ---------------------------------------------------------------- */
   /* Utilities                                                         */
@@ -35,7 +36,7 @@
   /* ---------------------------------------------------------------- */
 
   function emptyBudgetPlan() {
-    return { 인건비: 0, 연구활동비: 0, 재료비: 0, 외주비: 0, 장비비: 0, 여비: 0, 기타: 0 };
+    return { 인건비: 0, 기타: 0 };
   }
 
   function seedData() {
@@ -45,12 +46,24 @@
       progress: 0,
       budget: { governmentFund: 0, selfFund: 0 },
       budgetPlan: emptyBudgetPlan(),
+      budgetItems: [],
       expenses: [],
       milestones: [],
       ...o,
     });
     const M = (title, dueDate, done = false) => ({ id: uid(), title, dueDate, done });
     const E = (date, category, amount, memo) => ({ id: uid(), date, category, amount, memo });
+    const BI = (category, name, usage, quantity, cash, inKind, period, location) => ({
+      id: uid(),
+      category,
+      name,
+      usage,
+      quantity,
+      cash,
+      inKind,
+      period,
+      location,
+    });
 
     const weakTechProject = P({
       name: "약자를 위한 기술개발 지원사업",
@@ -62,7 +75,13 @@
       memo: "과제번호 WW250072, 과제명: AI 기반 실시간 노인 돌봄 위험 예측 모니터링 연구 개발(협약차수 1). 정부지원금 구조(서울경제진흥원 사업비관리시스템 기준): 총 사업비 160,000,000원 = 시지원연구개발비(정부, 현금) 120,000,000원(지원비율 75%) + 기관부담연구개발비(자부담) 40,000,000원(현금 4,000,000원 + 현물 36,000,000원). 실행 집행 내역은 2026-01-16~2026-05-07 집행분(연구활동비 7건, 내부인건비 8건, 합계 109,519,485원)을 반영함. 단, 원본 집행내역 파일 자체의 '합계' 행은 183,981,095원으로 더 높게 표기되어 있어, 이 파일에 포함되지 않은 집행 건이 남아있을 수 있음 — 전체 내역인지 원본 시스템에서 재확인 필요.",
       progress: 92,
       budget: { governmentFund: 120000000, selfFund: 40000000 },
-      budgetPlan: { 인건비: 113500000, 연구활동비: 46500000, 재료비: 0, 외주비: 0, 장비비: 0, 여비: 0, 기타: 0 },
+      budgetPlan: { 인건비: 113500000, 기타: 0 },
+      budgetItems: [
+        BI("연구활동비", "이행보증보험증권 발급수수료", "이행보증보험증권 발급수수료", 1, 1319370, 0, "", "영수증"),
+        BI("연구활동비", "위탁정산수수료", "위탁정산수수료", 1, 700000, 0, "", "정산서"),
+        BI("연구활동비", "소프트웨어 활용비", "AI알고리즘 개발플랫폼(메가존 AWS)", 1, 43480630, 0, "25.09~26.08", "클라우드"),
+        BI("연구활동비", "회의비", "", 1, 1000000, 0, "", ""),
+      ],
       expenses: [
         E("2026-01-16", "연구활동비", 6628529, "메가존클라우드 AWS 클라우드 요금(연구활동비, 17:44:33 집행)"),
         E("2026-01-16", "연구활동비", 6859667, "메가존클라우드 AWS 클라우드 요금(연구활동비, 17:44:31 집행)"),
@@ -87,10 +106,20 @@
         status: "진행중",
         startDate: "2026-07-01",
         endDate: "2027-06-30",
-        memo: "시지원연구개발비(정부) 2억원 + 기관부담(자부담, 현금 6,918,720원 + 현물 59,800,000원) 66,718,720원. 예산 계획은 원본 스프레드시트 기준이며 실제 집행 내역은 아직 등록되지 않았습니다.",
+        memo: "시지원연구개발비(정부) 2억원 + 기관부담(자부담, 현금 6,918,720원 + 현물 59,800,000원) 66,718,720원. 연구재료비·연구활동비 세부 내역은 원본 예산 계획표 기준(2026-07-22 갱신).",
         progress: 6,
         budget: { governmentFund: 200000000, selfFund: 66718720 },
-        budgetPlan: { 인건비: 212000000, 재료비: 0, 외주비: 31600000, 장비비: 0, 여비: 0, 기타: 23118720 },
+        budgetPlan: { 인건비: 212000000, 기타: 0 },
+        budgetItems: [
+          BI("연구재료비", "시제품 제작 경비", "늘 밴드 제작", 120, 16800000, 0, "26.05~26.06", "실증기관"),
+          BI("연구재료비", "시제품 제작 경비", "늘 허브 제작", 80, 8000000, 0, "26.05~26.06", "실증기관"),
+          BI("연구재료비", "시제품 제작 경비", "늘 차저 제작", 30, 1800000, 0, "26.05~26.06", "실증기관"),
+          BI("연구활동비", "이행보증보험증권 발급수수료", "이행보증보험증권 발급수수료", 1, 995720, 0, "2026.07", "회계"),
+          BI("연구활동비", "위탁정산수수료", "위탁정산수수료", 1, 1265000, 0, "2027.06", "회계"),
+          BI("연구활동비", "소프트웨어 활용비", "AWS 클라우드(메가존)", 1, 17858000, 0, "26.07~27.06", "클라우드"),
+          BI("연구활동비", "회의비", "연구개발 회의비", 10, 3000000, 0, "26.07~27.06", "회계"),
+          BI("연구활동비", "외부 전문기술 활용비", "3자검증 인증비", 1, 5000000, 0, "2027.06", "회계"),
+        ],
         milestones: [
           M("실증기관 협의 및 실증 계획 수립", "2026-11-30"),
           M("플랫폼 구축 및 시스템 환경 구성", "2026-12-31"),
@@ -108,10 +137,20 @@
         status: "진행중",
         startDate: "2026-07-01",
         endDate: "2027-01-31",
-        memo: "K-Startup 플랫폼 연계, 현대건설 실증단지 파트너십. 정부/민간 재원 구조 미확인 — 현재는 자체 소요비용 추정치(예산 계획) 기준(정부지원금 0으로 표기, 확인 후 입력 필요). 실제 집행 내역은 아직 등록되지 않았습니다.",
+        memo: "K-Startup 플랫폼 연계, 현대건설 실증단지 파트너십. 정부/민간 재원 구조 미확인 — 현재는 자체 소요비용 추정치(예산 계획) 기준(정부지원금 0으로 표기, 확인 후 입력 필요). 실제 집행 내역은 아직 등록되지 않았습니다. 비목 개편(외주비/장비비→연구재료비·연구활동비)에 따라 임의로 재분류함 — 확인 후 필요시 조정 요망.",
         progress: 10,
         budget: { governmentFund: 0, selfFund: 90750000 },
-        budgetPlan: { 인건비: 35000000, 재료비: 0, 외주비: 30000000, 장비비: 24750000, 여비: 0, 기타: 1000000 },
+        budgetPlan: { 인건비: 35000000, 기타: 0 },
+        budgetItems: [
+          BI("연구재료비", "갤럭시 워치", "", 20, 400000, 8000000, "", ""),
+          BI("연구재료비", "늘밴드", "", 20, 150000, 3000000, "", ""),
+          BI("연구재료비", "늘허브", "", 20, 100000, 2000000, "", ""),
+          BI("연구재료비", "늘밴드차저", "", 20, 100000, 2000000, "", ""),
+          BI("연구재료비", "개발시료 AOS", "", 1, 2000000, 2000000, "", ""),
+          BI("연구재료비", "개발시료 iOS", "", 1, 2500000, 2500000, "", ""),
+          BI("연구활동비", "UI/UX 디자인", "", 1, 15000000, 15000000, "", ""),
+          BI("연구활동비", "지급수수료", "회계", 1, 500000, 500000, "", ""),
+        ],
         milestones: [
           M("설계·기획 완료(대상단지 협의·참여자 모집)", "2026-08-31"),
           M("개발 완료(온보딩·AI연동·데이터수집로직)", "2026-11-30"),
@@ -126,10 +165,15 @@
         status: "진행중",
         startDate: "2026-04-01",
         endDate: "2026-12-31",
-        memo: "사업계획서(2026.01.09 제출) 기준. 정부 지원비율 70%(정부보조금 29,960,000원 + 기업부담금 12,840,000원 = 총 42,800,000원). 실행 집행 내역은 아직 등록되지 않아 [실행 집행 내역]에서 입력 필요.",
+        memo: "사업계획서(2026.01.09 제출) 기준. 정부 지원비율 70%(정부보조금 29,960,000원 + 기업부담금 12,840,000원 = 총 42,800,000원). 실행 집행 내역은 아직 등록되지 않아 [실행 집행 내역]에서 입력 필요. 비목 개편(외주비/여비→연구활동비)에 따라 3개 프로그램을 모두 연구활동비로 재분류함 — 확인 후 필요시 조정 요망.",
         progress: 40,
         budget: { governmentFund: 29960000, selfFund: 12840000 },
-        budgetPlan: { 인건비: 0, 재료비: 0, 외주비: 12960000, 장비비: 0, 여비: 15000000, 기타: 14840000 },
+        budgetPlan: { 인건비: 0, 기타: 0 },
+        budgetItems: [
+          BI("연구활동비", "일문 홈페이지 구축", "", 1, 12960000, 0, "2026.04~2026.12", ""),
+          BI("연구활동비", "전시회/행사/해외영업지원", "", 1, 15000000, 0, "2026.04~2026.12", ""),
+          BI("연구활동비", "법무/세무/회계 컨설팅", "", 1, 14840000, 0, "2026.04~2026.12", ""),
+        ],
         milestones: [
           M("바우처 발급 및 사업 개시", "2026-04-01", true),
           M("일문 홈페이지 구축 완료", "2026-12-31"),
@@ -233,6 +277,15 @@
   function categorySpent(p, category) {
     if (category === "인건비") return laborSpentForProject(p);
     return p.expenses.filter((e) => e.category === category).reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  }
+  function categoryBudget(p, category) {
+    if (ITEMIZED_CATEGORIES.includes(category)) {
+      if (!p.budgetItems) return 0;
+      return p.budgetItems
+        .filter((item) => item.category === category)
+        .reduce((sum, item) => sum + (Number(item.cash) || 0) + (Number(item.inKind) || 0), 0);
+    }
+    return (p.budgetPlan && p.budgetPlan[category]) || 0;
   }
   function expectedProgress(p) {
     const start = new Date(p.startDate).getTime();
@@ -626,19 +679,85 @@
   /* ---------------------------------------------------------------- */
 
   const formBudgetPlan = document.getElementById("form-budget-plan");
+  const formBudgetItem = document.getElementById("form-budget-item");
+  const MANUAL_CATEGORIES = CATEGORIES.filter((c) => !ITEMIZED_CATEGORIES.includes(c));
 
   function fillBudgetPlanForm(p) {
     if (!p.budgetPlan) p.budgetPlan = emptyBudgetPlan();
-    CATEGORIES.forEach((cat) => {
+    if (!p.budgetItems) p.budgetItems = [];
+    MANUAL_CATEGORIES.forEach((cat) => {
       formBudgetPlan[cat].value = p.budgetPlan[cat] || 0;
     });
+    renderBudgetItemsTable(p);
     renderCategoryBudgetTable(p);
   }
+
+  function renderBudgetItemsTable(p) {
+    const tbody = document.querySelector("#budget-item-table tbody");
+    if (!p.budgetItems.length) {
+      tbody.innerHTML = `<tr><td colspan="9" class="empty-note">등록된 세부 내역이 없습니다.</td></tr>`;
+      return;
+    }
+    const sorted = [...p.budgetItems].sort((a, b) => a.category.localeCompare(b.category));
+    tbody.innerHTML = sorted
+      .map(
+        (item) => `
+      <tr data-budget-item-id="${item.id}">
+        <td>${escapeHtml(item.category)}</td>
+        <td>${escapeHtml(item.name)}</td>
+        <td>${escapeHtml(item.usage || "")}</td>
+        <td class="num">${item.quantity || ""}</td>
+        <td class="num">${fmtWon(item.cash || 0)}</td>
+        <td class="num">${fmtWon(item.inKind || 0)}</td>
+        <td>${escapeHtml(item.period || "")}</td>
+        <td>${escapeHtml(item.location || "")}</td>
+        <td><button class="row-delete" data-del-budget-item="${item.id}" title="삭제">✕</button></td>
+      </tr>`
+      )
+      .join("");
+  }
+
+  formBudgetItem.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const p = getActiveProject();
+    if (!p) return;
+    const form = e.target;
+    if (!p.budgetItems) p.budgetItems = [];
+    p.budgetItems.push({
+      id: uid(),
+      category: form.category.value,
+      name: form.name.value.trim(),
+      usage: form.usage.value.trim(),
+      quantity: Number(form.quantity.value) || 0,
+      cash: Number(form.cash.value) || 0,
+      inKind: Number(form.inKind.value) || 0,
+      period: form.period.value.trim(),
+      location: form.location.value.trim(),
+    });
+    persist();
+    renderBudgetItemsTable(p);
+    renderCategoryBudgetTable(p);
+    renderAll();
+    form.reset();
+    toast("세부 내역이 추가되었습니다");
+  });
+
+  document.querySelector("#budget-item-table tbody").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-del-budget-item]");
+    if (!btn) return;
+    const p = getActiveProject();
+    if (!p) return;
+    p.budgetItems = p.budgetItems.filter((item) => item.id !== btn.dataset.delBudgetItem);
+    persist();
+    renderBudgetItemsTable(p);
+    renderCategoryBudgetTable(p);
+    renderAll();
+  });
 
   function renderCategoryBudgetTable(p) {
     const tbody = document.querySelector("#category-budget-table tbody");
     tbody.innerHTML = CATEGORIES.map((cat) => {
-      const budget = (p.budgetPlan && p.budgetPlan[cat]) || 0;
+      const budget = categoryBudget(p, cat);
       const spent = categorySpent(p, cat);
       const remaining = budget - spent;
       const over = remaining < 0;
@@ -657,7 +776,7 @@
     const p = getActiveProject();
     if (!p) return;
     if (!p.budgetPlan) p.budgetPlan = emptyBudgetPlan();
-    CATEGORIES.forEach((cat) => {
+    MANUAL_CATEGORIES.forEach((cat) => {
       p.budgetPlan[cat] = Number(formBudgetPlan[cat].value) || 0;
     });
     persist();
@@ -802,6 +921,7 @@
       progress: 0,
       budget: { governmentFund: 0, selfFund: 0 },
       budgetPlan: emptyBudgetPlan(),
+      budgetItems: [],
       expenses: [],
       milestones: [],
     };
