@@ -96,6 +96,14 @@ body {
 .brand { font-size: 18px; font-weight: 700; margin: 0; }
 .topbar-actions { display: flex; gap: 8px; align-items: center; }
 
+.view-nav { display: flex; gap: 2px; background: var(--page-plane); border-radius: 8px; padding: 3px; }
+.view-nav-btn {
+  font: inherit; font-size: 13px; font-weight: 600;
+  background: transparent; border: none; cursor: pointer;
+  padding: 6px 14px; border-radius: 6px; color: var(--text-secondary);
+}
+.view-nav-btn.active { background: var(--surface-1); color: var(--series-1); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+
 /* ---------- Buttons ---------- */
 .btn {
   font: inherit;

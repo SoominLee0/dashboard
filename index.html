@@ -10,6 +10,10 @@
 <header class="topbar">
   <div class="topbar-inner">
     <h1 class="brand">사업관리 대시보드</h1>
+    <nav class="view-nav" id="view-nav">
+      <button class="view-nav-btn active" data-view="dashboard" type="button">대시보드</button>
+      <button class="view-nav-btn" data-view="labor" type="button">인건비 관리</button>
+    </nav>
     <div class="topbar-actions">
       <button id="btn-export" class="btn btn-ghost" type="button">내보내기</button>
       <label class="btn btn-ghost btn-file">
@@ -22,7 +26,7 @@
   </div>
 </header>
 
-<main class="page">
+<main class="page" id="view-dashboard">
 
   <!-- Summary stat tiles -->
   <section class="tiles" id="summary-tiles" aria-label="전체 요약"></section>
@@ -80,6 +84,95 @@
 
   <!-- Project grid -->
   <section class="project-grid" id="project-grid" aria-label="프로젝트 목록"></section>
+
+</main>
+
+<!-- Labor cost management view -->
+<main class="page" id="view-labor" hidden>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>직원 관리</h2>
+      <p class="card-sub">인건비를 집행할 직원 목록을 관리합니다</p>
+    </div>
+    <form id="form-employee" class="form-grid form-grid-tight">
+      <label class="field">
+        <span>이름</span>
+        <input type="text" name="name" required placeholder="예: 김운봉" />
+      </label>
+      <label class="field">
+        <span>직위</span>
+        <input type="text" name="position" placeholder="예: 팀장" />
+      </label>
+      <label class="field field-wide">
+        <span>메모</span>
+        <input type="text" name="memo" placeholder="담당 업무 등" />
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-secondary">+ 직원 추가</button>
+      </div>
+    </form>
+    <div class="table-wrap">
+      <table class="table" id="employee-table">
+        <thead><tr><th>이름</th><th>직위</th><th>메모</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px;">
+    <div class="card-head">
+      <h2>인건비 집행 등록</h2>
+      <p class="card-sub">직원 · 프로젝트 · 집행월별로 실제 지급된 인건비를 기록합니다</p>
+    </div>
+    <form id="form-labor" class="form-grid form-grid-tight">
+      <label class="field">
+        <span>직원</span>
+        <select name="employeeId" id="labor-employee-select" required></select>
+      </label>
+      <label class="field">
+        <span>프로젝트</span>
+        <select name="projectId" id="labor-project-select" required></select>
+      </label>
+      <label class="field">
+        <span>집행월</span>
+        <input type="month" name="month" required />
+      </label>
+      <label class="field">
+        <span>금액 (원)</span>
+        <input type="number" name="amount" min="0" step="10" required />
+      </label>
+      <label class="field field-wide">
+        <span>메모</span>
+        <input type="text" name="memo" placeholder="비고" />
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">+ 집행 등록</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card" style="margin-top:16px;">
+    <div class="card-head">
+      <h2>월별 · 프로젝트별 인건비 집행 현황</h2>
+      <p class="card-sub">각 월에 어떤 프로젝트로 인건비가 집행되었는지 확인합니다</p>
+    </div>
+    <div class="table-wrap">
+      <table class="table" id="labor-pivot-table"></table>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px;">
+    <div class="card-head">
+      <h2>인건비 집행 내역</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="table" id="labor-entries-table">
+        <thead><tr><th>월</th><th>직원</th><th>프로젝트</th><th>금액</th><th>메모</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 
 </main>
 
@@ -169,7 +262,31 @@
 
         <hr class="divider" />
 
-        <h3 class="section-title">지출 내역</h3>
+        <h3 class="section-title">비목별 예산 계획</h3>
+        <p class="card-sub" style="margin:-8px 0 12px;">사업비를 비목별로 얼마씩 쓸지 계획합니다. 인건비 집행은 [인건비 관리] 페이지 등록분이 자동으로 반영됩니다.</p>
+        <form id="form-budget-plan" class="form-grid form-grid-tight">
+          <label class="field"><span>인건비 (계획)</span><input type="number" name="인건비" min="0" step="10" /></label>
+          <label class="field"><span>재료비</span><input type="number" name="재료비" min="0" step="10" /></label>
+          <label class="field"><span>외주비</span><input type="number" name="외주비" min="0" step="10" /></label>
+          <label class="field"><span>장비비</span><input type="number" name="장비비" min="0" step="10" /></label>
+          <label class="field"><span>여비</span><input type="number" name="여비" min="0" step="10" /></label>
+          <label class="field"><span>기타</span><input type="number" name="기타" min="0" step="10" /></label>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">예산 계획 저장</button>
+          </div>
+        </form>
+
+        <div class="table-wrap" style="margin-top:14px;">
+          <table class="table" id="category-budget-table">
+            <thead><tr><th>비목</th><th>예산</th><th>집행</th><th>잔액</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <hr class="divider" />
+
+        <h3 class="section-title">실행 집행 내역</h3>
+        <p class="card-sub" style="margin:-8px 0 12px;">인건비를 제외한 실제 지출을 등록합니다. 인건비는 [인건비 관리] 페이지에서 등록해 주세요.</p>
         <form id="form-expense" class="form-grid form-grid-tight">
           <label class="field">
             <span>날짜</span>
@@ -178,7 +295,6 @@
           <label class="field">
             <span>비목</span>
             <select name="category">
-              <option value="인건비">인건비</option>
               <option value="재료비">재료비</option>
               <option value="외주비">외주비</option>
               <option value="장비비">장비비</option>

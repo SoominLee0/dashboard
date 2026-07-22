@@ -1,8 +1,9 @@
 (() => {
   "use strict";
 
-  const STORAGE_KEY = "biz-dashboard-data-v2";
+  const STORAGE_KEY = "biz-dashboard-data-v3";
   const THEME_KEY = "biz-dashboard-theme";
+  const CATEGORIES = ["인건비", "재료비", "외주비", "장비비", "여비", "기타"];
 
   /* ---------------------------------------------------------------- */
   /* Utilities                                                         */
@@ -33,20 +34,24 @@
   /* Data layer                                                        */
   /* ---------------------------------------------------------------- */
 
+  function emptyBudgetPlan() {
+    return { 인건비: 0, 재료비: 0, 외주비: 0, 장비비: 0, 여비: 0, 기타: 0 };
+  }
+
   function seedData() {
     const P = (o) => ({
       id: uid(),
       memo: "",
       progress: 0,
       budget: { governmentFund: 0, selfFund: 0 },
+      budgetPlan: emptyBudgetPlan(),
       expenses: [],
       milestones: [],
       ...o,
     });
-    const E = (date, category, amount, memo) => ({ id: uid(), date, category, amount, memo });
     const M = (title, dueDate, done = false) => ({ id: uid(), title, dueDate, done });
 
-    return [
+    const projects = [
       P({
         name: "약자기술 지원사업",
         type: "정부지원사업",
@@ -54,19 +59,10 @@
         status: "진행중",
         startDate: "2025-06-01",
         endDate: "2026-07-31",
-        memo: "서울경제진흥원(SBA) 사업비관리시스템 기준. 정부지원금 규모는 본 자료에 없어 0으로 표기(확인 후 입력 필요) — 사업비는 자부담금(현금+현물) 기준.",
+        memo: "서울경제진흥원(SBA) 사업비관리시스템의 예산 계획 기준. 정부지원금 규모는 본 자료에 없어 0으로 표기(확인 후 입력 필요) — 사업비는 자부담금(현금+현물) 기준. 실제 집행 내역은 아직 등록되지 않았으니 [실행 집행 내역]과 [인건비 관리]에서 입력해 주세요.",
         progress: 92,
         budget: { governmentFund: 0, selfFund: 160000000 },
-        expenses: [
-          E("2025-08-01", "인건비", 19360000, "박재덕 팀장 인건비(현금, 4개월 80%)"),
-          E("2025-08-01", "인건비", 28800000, "김세일 팀장 인건비(현금, 6개월 80%)"),
-          E("2025-08-01", "인건비", 23200080, "유소담 매니저 인건비(현금, 12개월 40%)"),
-          E("2025-10-01", "인건비", 6139920, "이수민 매니저 인건비(현금, 10개월 11%, 신규채용)"),
-          E("2025-08-01", "기타", 1319370, "이행보증보험증권 발급수수료"),
-          E("2025-08-01", "기타", 700000, "위탁정산수수료"),
-          E("2025-09-01", "기타", 43480630, "AI알고리즘 개발플랫폼 클라우드(메가존 AWS, 25.09~26.08)"),
-          E("2025-08-01", "기타", 1000000, "회의비"),
-        ],
+        budgetPlan: { 인건비: 113500000, 재료비: 0, 외주비: 0, 장비비: 0, 여비: 0, 기타: 46500000 },
         milestones: [
           M("사업 종료 및 최종보고서 제출", "2026-07-31"),
           M("클라우드 라이선스 만료(메가존 AWS)", "2026-08-31"),
@@ -79,24 +75,10 @@
         status: "진행중",
         startDate: "2026-07-01",
         endDate: "2027-06-30",
-        memo: "시지원연구개발비(정부) 2억원 + 기관부담(자부담, 현금 6,918,720원 + 현물 59,800,000원) 66,718,720원.",
+        memo: "시지원연구개발비(정부) 2억원 + 기관부담(자부담, 현금 6,918,720원 + 현물 59,800,000원) 66,718,720원. 예산 계획은 원본 스프레드시트 기준이며 실제 집행 내역은 아직 등록되지 않았습니다.",
         progress: 6,
         budget: { governmentFund: 200000000, selfFund: 66718720 },
-        expenses: [
-          E("2026-07-01", "인건비", 38000000, "이수민 팀장 인건비(현금, 12개월 50%)"),
-          E("2026-07-01", "인건비", 25200000, "서정호 팀장 인건비(현금, 12개월 36%)"),
-          E("2026-07-01", "인건비", 20000000, "윤형수 매니저 인건비(현금, 12개월 40%)"),
-          E("2026-07-01", "인건비", 33000000, "김상수 매니저 인건비(현금, 12개월 60%)"),
-          E("2026-07-01", "인건비", 36000000, "유소담 매니저 인건비(현금, 12개월 60%)"),
-          E("2026-07-01", "기타", 995720, "이행보증보험증권 발급수수료"),
-          E("2027-06-01", "기타", 1265000, "위탁정산수수료"),
-          E("2026-07-01", "기타", 17858000, "AWS 클라우드(메가존, 26.07~27.06)"),
-          E("2026-07-01", "기타", 3000000, "연구개발 회의비(10건)"),
-          E("2026-05-01", "외주비", 16800000, "늘밴드 제작(120건, 외부 전문기술 활용비)"),
-          E("2026-05-01", "외주비", 8000000, "늘허브 제작(80건, 외부 전문기술 활용비)"),
-          E("2026-05-01", "외주비", 1800000, "늘밴드차저 제작(30건, 외부 전문기술 활용비)"),
-          E("2027-06-01", "외주비", 5000000, "3자검증 인증비"),
-        ],
+        budgetPlan: { 인건비: 212000000, 재료비: 0, 외주비: 31600000, 장비비: 0, 여비: 0, 기타: 23118720 },
         milestones: [
           M("실증기관 협의 및 실증 계획 수립", "2026-11-30"),
           M("플랫폼 구축 및 시스템 환경 구성", "2026-12-31"),
@@ -114,22 +96,10 @@
         status: "진행중",
         startDate: "2026-07-01",
         endDate: "2027-01-31",
-        memo: "K-Startup 플랫폼 연계, 현대건설 실증단지 파트너십. 정부/민간 재원 구조 미확인 — 현재는 자체 소요비용 추정치 기준(정부지원금 0으로 표기, 확인 후 입력 필요).",
+        memo: "K-Startup 플랫폼 연계, 현대건설 실증단지 파트너십. 정부/민간 재원 구조 미확인 — 현재는 자체 소요비용 추정치(예산 계획) 기준(정부지원금 0으로 표기, 확인 후 입력 필요). 실제 집행 내역은 아직 등록되지 않았습니다.",
         progress: 10,
         budget: { governmentFund: 0, selfFund: 90750000 },
-        expenses: [
-          E("2026-07-01", "인건비", 16382000, "이수민 인건비(7개월, 참여율 37%)"),
-          E("2026-07-01", "인건비", 9000000, "유소담 인건비(6개월, 참여율 30%)"),
-          E("2026-07-01", "인건비", 9618000, "김상수 인건비(7개월, 참여율 30%)"),
-          E("2026-07-01", "장비비", 400000, "갤럭시 워치 20대(현금분, 현물 8,000,000원 별도)"),
-          E("2026-07-01", "장비비", 150000, "늘밴드 20개(현금분, 현물 3,000,000원 별도)"),
-          E("2026-07-01", "장비비", 100000, "늘허브 20개(현금분, 현물 2,000,000원 별도)"),
-          E("2026-07-01", "장비비", 100000, "늘밴드차저 20개(현금분, 현물 2,000,000원 별도)"),
-          E("2026-07-01", "장비비", 2000000, "개발시료 AOS(현금분, 현물 2,000,000원 별도)"),
-          E("2026-07-01", "장비비", 2500000, "개발시료 iOS(현금분, 현물 2,500,000원 별도)"),
-          E("2026-07-01", "외주비", 15000000, "UI/UX 디자인(현금분, 현물 15,000,000원 별도)"),
-          E("2026-07-01", "기타", 500000, "지급수수료(회계, 현금분, 현물 500,000원 별도)"),
-        ],
+        budgetPlan: { 인건비: 35000000, 재료비: 0, 외주비: 30000000, 장비비: 24750000, 여비: 0, 기타: 1000000 },
         milestones: [
           M("설계·기획 완료(대상단지 협의·참여자 모집)", "2026-08-31"),
           M("개발 완료(온보딩·AI연동·데이터수집로직)", "2026-11-30"),
@@ -147,16 +117,38 @@
         memo: "세부 정보 미입력 상태(원본 자료에 내용 없음) — 사업 확정 후 지원기관·기간·예산 업데이트 필요.",
         progress: 0,
         budget: { governmentFund: 0, selfFund: 0 },
-        expenses: [],
+        budgetPlan: emptyBudgetPlan(),
         milestones: [],
       }),
     ];
+
+    const employees = [
+      { id: uid(), name: "김운봉", position: "대표이사", memo: "" },
+      { id: uid(), name: "한규희", position: "CSO", memo: "" },
+      { id: uid(), name: "이경호", position: "CFO", memo: "" },
+      { id: uid(), name: "박재덕", position: "팀장", memo: "" },
+      { id: uid(), name: "김세일", position: "팀장", memo: "" },
+      { id: uid(), name: "유소담", position: "매니저", memo: "" },
+      { id: uid(), name: "이수민", position: "팀장", memo: "" },
+      { id: uid(), name: "서정호", position: "팀장", memo: "" },
+      { id: uid(), name: "윤형수", position: "매니저", memo: "" },
+      { id: uid(), name: "김상수", position: "매니저", memo: "" },
+    ];
+
+    return { projects, employees, laborEntries: [] };
   }
 
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          projects: Array.isArray(parsed.projects) ? parsed.projects : [],
+          employees: Array.isArray(parsed.employees) ? parsed.employees : [],
+          laborEntries: Array.isArray(parsed.laborEntries) ? parsed.laborEntries : [],
+        };
+      }
     } catch (e) {
       console.error("Failed to load data", e);
     }
@@ -169,11 +161,14 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
 
-  let projects = load();
+  const initialState = load();
+  let projects = initialState.projects;
+  let employees = initialState.employees;
+  let laborEntries = initialState.laborEntries;
   let activeProjectId = null;
   let activeTab = "overview";
 
-  const persist = () => save(projects);
+  const persist = () => save({ projects, employees, laborEntries });
 
   /* ---------------------------------------------------------------- */
   /* Derived calculations                                              */
@@ -182,8 +177,18 @@
   function budgetTotal(p) {
     return (p.budget.governmentFund || 0) + (p.budget.selfFund || 0);
   }
+  function laborSpentForProject(p) {
+    return laborEntries
+      .filter((le) => le.projectId === p.id)
+      .reduce((sum, le) => sum + (Number(le.amount) || 0), 0);
+  }
   function spentAmount(p) {
-    return p.expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+    const expenseTotal = p.expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+    return expenseTotal + laborSpentForProject(p);
+  }
+  function categorySpent(p, category) {
+    if (category === "인건비") return laborSpentForProject(p);
+    return p.expenses.filter((e) => e.category === category).reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
   }
   function expectedProgress(p) {
     const start = new Date(p.startDate).getTime();
@@ -449,6 +454,7 @@
     modalTitle.textContent = p.name;
     fillOverviewForm(p);
     fillBudgetForm(p);
+    fillBudgetPlanForm(p);
     renderExpenseTable(p);
     renderMilestoneList(p);
     setActiveTab(tab);
@@ -525,9 +531,13 @@
     if (!p) return;
     if (!confirm(`"${p.name}" 프로젝트를 삭제할까요? 이 작업은 되돌릴 수 없습니다.`)) return;
     projects = projects.filter((x) => x.id !== p.id);
+    laborEntries = laborEntries.filter((le) => le.projectId !== p.id);
     persist();
     closeModal();
     renderAll();
+    refreshLaborSelects();
+    renderLaborEntries();
+    renderLaborPivot();
     toast("프로젝트가 삭제되었습니다");
   });
 
@@ -567,6 +577,50 @@
     toast("예산이 저장되었습니다");
   });
 
+  /* ---------------------------------------------------------------- */
+  /* Budget tab: category-level budget plan vs. actual execution       */
+  /* ---------------------------------------------------------------- */
+
+  const formBudgetPlan = document.getElementById("form-budget-plan");
+
+  function fillBudgetPlanForm(p) {
+    if (!p.budgetPlan) p.budgetPlan = emptyBudgetPlan();
+    CATEGORIES.forEach((cat) => {
+      formBudgetPlan[cat].value = p.budgetPlan[cat] || 0;
+    });
+    renderCategoryBudgetTable(p);
+  }
+
+  function renderCategoryBudgetTable(p) {
+    const tbody = document.querySelector("#category-budget-table tbody");
+    tbody.innerHTML = CATEGORIES.map((cat) => {
+      const budget = (p.budgetPlan && p.budgetPlan[cat]) || 0;
+      const spent = categorySpent(p, cat);
+      const remaining = budget - spent;
+      const over = remaining < 0;
+      return `
+      <tr>
+        <td>${cat}${cat === "인건비" ? ' <span class="tile-sub" style="display:inline;">(인건비 관리 페이지 집행 반영)</span>' : ""}</td>
+        <td class="num">${fmtWon(budget)}</td>
+        <td class="num">${fmtWon(spent)}</td>
+        <td class="num" style="${over ? "color:var(--critical); font-weight:700;" : ""}">${fmtWon(remaining)}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  formBudgetPlan.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const p = getActiveProject();
+    if (!p) return;
+    if (!p.budgetPlan) p.budgetPlan = emptyBudgetPlan();
+    CATEGORIES.forEach((cat) => {
+      p.budgetPlan[cat] = Number(formBudgetPlan[cat].value) || 0;
+    });
+    persist();
+    renderCategoryBudgetTable(p);
+    toast("비목별 예산 계획이 저장되었습니다");
+  });
+
   function renderExpenseTable(p) {
     const tbody = document.querySelector("#expense-table tbody");
     if (!p.expenses.length) {
@@ -603,6 +657,7 @@
     persist();
     renderExpenseTable(p);
     updateBudgetReadout(p);
+    renderCategoryBudgetTable(p);
     renderAll();
     form.reset();
     form.date.value = "";
@@ -618,6 +673,7 @@
     persist();
     renderExpenseTable(p);
     updateBudgetReadout(p);
+    renderCategoryBudgetTable(p);
     renderAll();
   });
 
@@ -701,12 +757,14 @@
       memo: "",
       progress: 0,
       budget: { governmentFund: 0, selfFund: 0 },
+      budgetPlan: emptyBudgetPlan(),
       expenses: [],
       milestones: [],
     };
     projects.push(p);
     persist();
     renderAll();
+    refreshLaborSelects();
     openModal(p.id, "overview");
   });
 
@@ -724,7 +782,7 @@
   /* ---------------------------------------------------------------- */
 
   document.getElementById("btn-export").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(projects, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ projects, employees, laborEntries }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -740,12 +798,29 @@
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const data = JSON.parse(reader.result);
-        if (!Array.isArray(data)) throw new Error("invalid format");
-        if (!confirm(`${data.length}개 프로젝트를 가져옵니다. 현재 데이터를 덮어씁니다. 계속할까요?`)) return;
-        projects = data;
+        const parsed = JSON.parse(reader.result);
+        let importedProjects, importedEmployees, importedLabor;
+        if (Array.isArray(parsed)) {
+          importedProjects = parsed;
+          importedEmployees = [];
+          importedLabor = [];
+        } else if (parsed && Array.isArray(parsed.projects)) {
+          importedProjects = parsed.projects;
+          importedEmployees = Array.isArray(parsed.employees) ? parsed.employees : [];
+          importedLabor = Array.isArray(parsed.laborEntries) ? parsed.laborEntries : [];
+        } else {
+          throw new Error("invalid format");
+        }
+        if (!confirm(`${importedProjects.length}개 프로젝트를 가져옵니다. 현재 데이터를 덮어씁니다. 계속할까요?`)) return;
+        projects = importedProjects;
+        employees = importedEmployees;
+        laborEntries = importedLabor;
         persist();
         renderAll();
+        refreshLaborSelects();
+        renderEmployeeList();
+        renderLaborEntries();
+        renderLaborPivot();
         toast("데이터를 가져왔습니다");
       } catch (err) {
         alert("파일을 읽을 수 없습니다. 올바른 백업 JSON 파일인지 확인해주세요.");
@@ -754,6 +829,198 @@
     reader.readAsText(file);
     e.target.value = "";
   });
+
+  /* ---------------------------------------------------------------- */
+  /* View switcher (dashboard <-> labor cost management)                */
+  /* ---------------------------------------------------------------- */
+
+  document.getElementById("view-nav").addEventListener("click", (e) => {
+    const btn = e.target.closest(".view-nav-btn");
+    if (!btn) return;
+    const view = btn.dataset.view;
+    document.querySelectorAll(".view-nav-btn").forEach((b) => b.classList.toggle("active", b === btn));
+    document.getElementById("view-dashboard").hidden = view !== "dashboard";
+    document.getElementById("view-labor").hidden = view !== "labor";
+    if (view === "labor") {
+      refreshLaborSelects();
+      renderEmployeeList();
+      renderLaborEntries();
+      renderLaborPivot();
+    }
+  });
+
+  /* ---------------------------------------------------------------- */
+  /* Labor cost management: employees                                  */
+  /* ---------------------------------------------------------------- */
+
+  function renderEmployeeList() {
+    const tbody = document.querySelector("#employee-table tbody");
+    if (!employees.length) {
+      tbody.innerHTML = `<tr><td colspan="4" class="empty-note">등록된 직원이 없습니다.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = employees
+      .map(
+        (emp) => `
+      <tr data-employee-id="${emp.id}">
+        <td>${escapeHtml(emp.name)}</td>
+        <td>${escapeHtml(emp.position || "")}</td>
+        <td>${escapeHtml(emp.memo || "")}</td>
+        <td><button class="row-delete" data-del-employee="${emp.id}" title="삭제">✕</button></td>
+      </tr>`
+      )
+      .join("");
+  }
+
+  document.getElementById("form-employee").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const name = form.name.value.trim();
+    if (!name) return;
+    employees.push({ id: uid(), name, position: form.position.value.trim(), memo: form.memo.value.trim() });
+    persist();
+    renderEmployeeList();
+    refreshLaborSelects();
+    form.reset();
+    toast("직원이 추가되었습니다");
+  });
+
+  document.querySelector("#employee-table tbody").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-del-employee]");
+    if (!btn) return;
+    const emp = employees.find((x) => x.id === btn.dataset.delEmployee);
+    if (!emp) return;
+    const hasEntries = laborEntries.some((x) => x.employeeId === emp.id);
+    const msg = `"${emp.name}" 직원을 삭제할까요?${hasEntries ? " 이 직원의 인건비 집행 내역도 함께 삭제됩니다." : ""}`;
+    if (!confirm(msg)) return;
+    employees = employees.filter((x) => x.id !== emp.id);
+    laborEntries = laborEntries.filter((x) => x.employeeId !== emp.id);
+    persist();
+    renderEmployeeList();
+    renderLaborEntries();
+    renderLaborPivot();
+    refreshLaborSelects();
+    renderAll();
+    toast("직원이 삭제되었습니다");
+  });
+
+  /* ---------------------------------------------------------------- */
+  /* Labor cost management: monthly execution entries                  */
+  /* ---------------------------------------------------------------- */
+
+  function refreshLaborSelects() {
+    const empSel = document.getElementById("labor-employee-select");
+    const projSel = document.getElementById("labor-project-select");
+    const prevEmp = empSel.value;
+    const prevProj = projSel.value;
+
+    empSel.innerHTML = employees.length
+      ? employees.map((e) => `<option value="${e.id}">${escapeHtml(e.name)}${e.position ? ` (${escapeHtml(e.position)})` : ""}</option>`).join("")
+      : `<option value="">직원을 먼저 등록하세요</option>`;
+    projSel.innerHTML = projects.length
+      ? projects.map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("")
+      : `<option value="">프로젝트를 먼저 등록하세요</option>`;
+
+    if (employees.some((e) => e.id === prevEmp)) empSel.value = prevEmp;
+    if (projects.some((p) => p.id === prevProj)) projSel.value = prevProj;
+  }
+
+  document.getElementById("form-labor").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const form = e.target;
+    if (!form.employeeId.value || !form.projectId.value) {
+      toast("직원과 프로젝트를 먼저 등록해주세요");
+      return;
+    }
+    laborEntries.push({
+      id: uid(),
+      employeeId: form.employeeId.value,
+      projectId: form.projectId.value,
+      month: form.month.value,
+      amount: Number(form.amount.value) || 0,
+      memo: form.memo.value.trim(),
+    });
+    persist();
+    renderLaborEntries();
+    renderLaborPivot();
+    renderAll();
+    form.reset();
+    toast("인건비 집행이 등록되었습니다");
+  });
+
+  function renderLaborEntries() {
+    const tbody = document.querySelector("#labor-entries-table tbody");
+    if (!laborEntries.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-note">등록된 인건비 집행 내역이 없습니다.</td></tr>`;
+      return;
+    }
+    const empById = Object.fromEntries(employees.map((e) => [e.id, e]));
+    const projById = Object.fromEntries(projects.map((p) => [p.id, p]));
+    const sorted = [...laborEntries].sort((a, b) => b.month.localeCompare(a.month));
+    tbody.innerHTML = sorted
+      .map((le) => {
+        const emp = empById[le.employeeId];
+        const proj = projById[le.projectId];
+        return `
+        <tr data-labor-id="${le.id}">
+          <td>${escapeHtml(le.month || "")}</td>
+          <td>${escapeHtml(emp ? emp.name : "(삭제된 직원)")}</td>
+          <td>${escapeHtml(proj ? proj.name : "(삭제된 프로젝트)")}</td>
+          <td class="num">${fmtWon(le.amount)}</td>
+          <td>${escapeHtml(le.memo || "")}</td>
+          <td><button class="row-delete" data-del-labor="${le.id}" title="삭제">✕</button></td>
+        </tr>`;
+      })
+      .join("");
+  }
+
+  document.querySelector("#labor-entries-table tbody").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-del-labor]");
+    if (!btn) return;
+    laborEntries = laborEntries.filter((x) => x.id !== btn.dataset.delLabor);
+    persist();
+    renderLaborEntries();
+    renderLaborPivot();
+    renderAll();
+  });
+
+  function renderLaborPivot() {
+    const el = document.getElementById("labor-pivot-table");
+    if (!laborEntries.length) {
+      el.innerHTML = `<tbody><tr><td class="empty-note">등록된 인건비 집행 내역이 없습니다.</td></tr></tbody>`;
+      return;
+    }
+    const projById = Object.fromEntries(projects.map((p) => [p.id, p]));
+    const months = [...new Set(laborEntries.map((e) => e.month))].sort();
+    const projectIds = [...new Set(laborEntries.map((e) => e.projectId))];
+    const cols = projectIds.map((id) => ({ id, name: projById[id] ? projById[id].name : "(삭제된 프로젝트)" }));
+
+    const cellSum = (month, projectId) =>
+      laborEntries
+        .filter((e) => e.month === month && e.projectId === projectId)
+        .reduce((s, e) => s + (Number(e.amount) || 0), 0);
+
+    const bodyRows = months
+      .map((month) => {
+        const cells = cols.map((c) => cellSum(month, c.id));
+        const rowTotal = cells.reduce((a, b) => a + b, 0);
+        return `<tr><td>${month}</td>${cells.map((v) => `<td class="num">${v ? fmtWon(v) : "-"}</td>`).join("")}<td class="num"><strong>${fmtWon(rowTotal)}</strong></td></tr>`;
+      })
+      .join("");
+
+    const colTotals = cols.map((c) => months.reduce((s, m) => s + cellSum(m, c.id), 0));
+    const grandTotal = colTotals.reduce((a, b) => a + b, 0);
+
+    el.innerHTML = `
+      <thead>
+        <tr><th>월</th>${cols.map((c) => `<th>${escapeHtml(c.name)}</th>`).join("")}<th>합계</th></tr>
+      </thead>
+      <tbody>${bodyRows}</tbody>
+      <tfoot>
+        <tr><td><strong>합계</strong></td>${colTotals.map((v) => `<td class="num"><strong>${fmtWon(v)}</strong></td>`).join("")}<td class="num"><strong>${fmtWon(grandTotal)}</strong></td></tr>
+      </tfoot>
+    `;
+  }
 
   /* ---------------------------------------------------------------- */
   /* Theme toggle                                                       */
@@ -784,4 +1051,8 @@
   /* ---------------------------------------------------------------- */
 
   renderAll();
+  refreshLaborSelects();
+  renderEmployeeList();
+  renderLaborEntries();
+  renderLaborPivot();
 })();
