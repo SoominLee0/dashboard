@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const STORAGE_KEY = "biz-dashboard-data-v3";
+  const STORAGE_KEY = "biz-dashboard-data-v4";
   const THEME_KEY = "biz-dashboard-theme";
   const CATEGORIES = ["인건비", "재료비", "외주비", "장비비", "여비", "기타"];
 
@@ -110,15 +110,20 @@
       P({
         name: "수출바우처사업",
         type: "정부지원사업",
-        agency: "",
-        status: "예정",
-        startDate: "2026-07-22",
-        endDate: "2027-01-22",
-        memo: "세부 정보 미입력 상태(원본 자료에 내용 없음) — 사업 확정 후 지원기관·기간·예산 업데이트 필요.",
-        progress: 0,
-        budget: { governmentFund: 0, selfFund: 0 },
-        budgetPlan: emptyBudgetPlan(),
-        milestones: [],
+        agency: "중소벤처기업진흥공단",
+        status: "진행중",
+        startDate: "2026-04-01",
+        endDate: "2026-12-31",
+        memo: "사업계획서(2026.01.09 제출) 기준. 정부 지원비율 70%(정부보조금 29,960,000원 + 기업부담금 12,840,000원 = 총 42,800,000원). 실행 집행 내역은 아직 등록되지 않아 [실행 집행 내역]에서 입력 필요.",
+        progress: 40,
+        budget: { governmentFund: 29960000, selfFund: 12840000 },
+        budgetPlan: { 인건비: 0, 재료비: 0, 외주비: 12960000, 장비비: 0, 여비: 15000000, 기타: 14840000 },
+        milestones: [
+          M("바우처 발급 및 사업 개시", "2026-04-01", true),
+          M("일문 홈페이지 구축 완료", "2026-12-31"),
+          M("전시회·해외영업지원 완료", "2026-12-31"),
+          M("법무·세무·회계 컨설팅 완료", "2026-12-31"),
+        ],
       }),
     ];
 
