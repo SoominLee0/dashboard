@@ -266,6 +266,7 @@
         <p class="card-sub" style="margin:-8px 0 12px;">사업비를 비목별로 얼마씩 쓸지 계획합니다. 인건비 집행은 [인건비 관리] 페이지 등록분이 자동으로 반영됩니다.</p>
         <form id="form-budget-plan" class="form-grid form-grid-tight">
           <label class="field"><span>인건비 (계획)</span><input type="number" name="인건비" min="0" step="10" /></label>
+          <label class="field"><span>연구활동비</span><input type="number" name="연구활동비" min="0" step="10" /></label>
           <label class="field"><span>재료비</span><input type="number" name="재료비" min="0" step="10" /></label>
           <label class="field"><span>외주비</span><input type="number" name="외주비" min="0" step="10" /></label>
           <label class="field"><span>장비비</span><input type="number" name="장비비" min="0" step="10" /></label>
@@ -295,6 +296,7 @@
           <label class="field">
             <span>비목</span>
             <select name="category">
+              <option value="연구활동비">연구활동비</option>
               <option value="재료비">재료비</option>
               <option value="외주비">외주비</option>
               <option value="장비비">장비비</option>
