@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const STORAGE_KEY = "biz-dashboard-data-v7";
+  const STORAGE_KEY = "biz-dashboard-data-v8";
   const THEME_KEY = "biz-dashboard-theme";
   const CATEGORIES = ["인건비", "연구재료비", "연구활동비", "기타"];
   const ITEMIZED_CATEGORIES = ["연구재료비", "연구활동비"];
@@ -36,7 +36,7 @@
   /* ---------------------------------------------------------------- */
 
   function emptyBudgetPlan() {
-    return { 인건비: 0, 기타: 0 };
+    return { 기타: 0 };
   }
 
   function seedData() {
@@ -47,6 +47,7 @@
       budget: { governmentFund: 0, selfFund: 0 },
       budgetPlan: emptyBudgetPlan(),
       budgetItems: [],
+      laborBudget: { cash: 0, inKind: 0 },
       expenses: [],
       milestones: [],
       ...o,
@@ -75,7 +76,8 @@
       memo: "과제번호 WW250072, 과제명: AI 기반 실시간 노인 돌봄 위험 예측 모니터링 연구 개발(협약차수 1). 정부지원금 구조(서울경제진흥원 사업비관리시스템 기준): 총 사업비 160,000,000원 = 시지원연구개발비(정부, 현금) 120,000,000원(지원비율 75%) + 기관부담연구개발비(자부담) 40,000,000원(현금 4,000,000원 + 현물 36,000,000원). 실행 집행 내역은 2026-01-16~2026-05-07 집행분(연구활동비 7건, 내부인건비 8건, 합계 109,519,485원)을 반영함. 단, 원본 집행내역 파일 자체의 '합계' 행은 183,981,095원으로 더 높게 표기되어 있어, 이 파일에 포함되지 않은 집행 건이 남아있을 수 있음 — 전체 내역인지 원본 시스템에서 재확인 필요.",
       progress: 92,
       budget: { governmentFund: 120000000, selfFund: 40000000 },
-      budgetPlan: { 인건비: 113500000, 기타: 0 },
+      budgetPlan: { 기타: 0 },
+      laborBudget: { cash: 77500000, inKind: 36000000 },
       budgetItems: [
         BI("연구활동비", "이행보증보험증권 발급수수료", "이행보증보험증권 발급수수료", 1, 1319370, 0, "", "영수증"),
         BI("연구활동비", "위탁정산수수료", "위탁정산수수료", 1, 700000, 0, "", "정산서"),
@@ -109,7 +111,8 @@
         memo: "시지원연구개발비(정부) 2억원 + 기관부담(자부담, 현금 6,918,720원 + 현물 59,800,000원) 66,718,720원. 연구재료비·연구활동비 세부 내역은 원본 예산 계획표 기준(2026-07-22 갱신).",
         progress: 6,
         budget: { governmentFund: 200000000, selfFund: 66718720 },
-        budgetPlan: { 인건비: 212000000, 기타: 0 },
+        budgetPlan: { 기타: 0 },
+        laborBudget: { cash: 152200000, inKind: 59800000 },
         budgetItems: [
           BI("연구재료비", "시제품 제작 경비", "늘 밴드 제작", 120, 16800000, 0, "26.05~26.06", "실증기관"),
           BI("연구재료비", "시제품 제작 경비", "늘 허브 제작", 80, 8000000, 0, "26.05~26.06", "실증기관"),
@@ -140,7 +143,8 @@
         memo: "K-Startup 플랫폼 연계, 현대건설 실증단지 파트너십. 정부/민간 재원 구조 미확인 — 현재는 자체 소요비용 추정치(예산 계획) 기준(정부지원금 0으로 표기, 확인 후 입력 필요). 실제 집행 내역은 아직 등록되지 않았습니다. 비목 개편(외주비/장비비→연구재료비·연구활동비)에 따라 임의로 재분류함 — 확인 후 필요시 조정 요망.",
         progress: 10,
         budget: { governmentFund: 0, selfFund: 90750000 },
-        budgetPlan: { 인건비: 35000000, 기타: 0 },
+        budgetPlan: { 기타: 0 },
+        laborBudget: { cash: 35000000, inKind: 0 },
         budgetItems: [
           BI("연구재료비", "갤럭시 워치", "", 20, 400000, 8000000, "", ""),
           BI("연구재료비", "늘밴드", "", 20, 150000, 3000000, "", ""),
@@ -168,7 +172,8 @@
         memo: "사업계획서(2026.01.09 제출) 기준. 정부 지원비율 70%(정부보조금 29,960,000원 + 기업부담금 12,840,000원 = 총 42,800,000원). 실행 집행 내역은 아직 등록되지 않아 [실행 집행 내역]에서 입력 필요. 비목 개편(외주비/여비→연구활동비)에 따라 3개 프로그램을 모두 연구활동비로 재분류함 — 확인 후 필요시 조정 요망.",
         progress: 40,
         budget: { governmentFund: 29960000, selfFund: 12840000 },
-        budgetPlan: { 인건비: 0, 기타: 0 },
+        budgetPlan: { 기타: 0 },
+        laborBudget: { cash: 0, inKind: 0 },
         budgetItems: [
           BI("연구활동비", "일문 홈페이지 구축", "", 1, 12960000, 0, "2026.04~2026.12", ""),
           BI("연구활동비", "전시회/행사/해외영업지원", "", 1, 15000000, 0, "2026.04~2026.12", ""),
@@ -279,6 +284,10 @@
     return p.expenses.filter((e) => e.category === category).reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
   }
   function categoryBudget(p, category) {
+    if (category === "인건비") {
+      const lb = p.laborBudget || { cash: 0, inKind: 0 };
+      return (Number(lb.cash) || 0) + (Number(lb.inKind) || 0);
+    }
     if (ITEMIZED_CATEGORIES.includes(category)) {
       if (!p.budgetItems) return 0;
       return p.budgetItems
@@ -680,7 +689,7 @@
 
   const formBudgetPlan = document.getElementById("form-budget-plan");
   const formBudgetItem = document.getElementById("form-budget-item");
-  const MANUAL_CATEGORIES = CATEGORIES.filter((c) => !ITEMIZED_CATEGORIES.includes(c));
+  const MANUAL_CATEGORIES = CATEGORIES.filter((c) => c !== "인건비" && !ITEMIZED_CATEGORIES.includes(c));
 
   function fillBudgetPlanForm(p) {
     if (!p.budgetPlan) p.budgetPlan = emptyBudgetPlan();
@@ -922,6 +931,7 @@
       budget: { governmentFund: 0, selfFund: 0 },
       budgetPlan: emptyBudgetPlan(),
       budgetItems: [],
+      laborBudget: { cash: 0, inKind: 0 },
       expenses: [],
       milestones: [],
     };
@@ -929,6 +939,7 @@
     persist();
     renderAll();
     refreshLaborSelects();
+    renderLaborBalanceTable();
     openModal(p.id, "overview");
   });
 
@@ -1148,7 +1159,50 @@
     renderAll();
   });
 
+  function renderLaborBalanceTable() {
+    const tbody = document.querySelector("#labor-balance-table tbody");
+    if (!projects.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty-note">등록된 프로젝트가 없습니다.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = projects
+      .map((p) => {
+        const lb = p.laborBudget || { cash: 0, inKind: 0 };
+        const cashBudget = Number(lb.cash) || 0;
+        const inKindBudget = Number(lb.inKind) || 0;
+        const executed = laborSpentForProject(p);
+        const govSpent = Math.min(executed, Number(p.budget.governmentFund) || 0);
+        const selfCashSpent = executed - govSpent;
+        const cashRemaining = cashBudget - executed;
+        return `
+        <tr data-labor-balance-row="${p.id}">
+          <td>${escapeHtml(p.name)}</td>
+          <td><input type="number" class="input" style="width:120px;" min="0" step="10" data-labor-budget="cash" data-project-id="${p.id}" value="${cashBudget}" /></td>
+          <td><input type="number" class="input" style="width:120px;" min="0" step="10" data-labor-budget="inKind" data-project-id="${p.id}" value="${inKindBudget}" /></td>
+          <td class="num">${fmtWon(govSpent)}</td>
+          <td class="num">${fmtWon(selfCashSpent)}</td>
+          <td class="num" style="${cashRemaining < 0 ? "color:var(--critical); font-weight:700;" : ""}">${fmtWon(cashRemaining)}</td>
+          <td class="num">${fmtWon(inKindBudget)}</td>
+        </tr>`;
+      })
+      .join("");
+  }
+
+  document.querySelector("#labor-balance-table tbody").addEventListener("change", (e) => {
+    const input = e.target.closest("[data-labor-budget]");
+    if (!input) return;
+    const p = projects.find((x) => x.id === input.dataset.projectId);
+    if (!p) return;
+    if (!p.laborBudget) p.laborBudget = { cash: 0, inKind: 0 };
+    const field = input.dataset.laborBudget;
+    p.laborBudget[field] = Number(input.value) || 0;
+    persist();
+    renderLaborBalanceTable();
+    renderAll();
+  });
+
   function renderLaborPivot() {
+    renderLaborBalanceTable();
     const el = document.getElementById("labor-pivot-table");
     if (!laborEntries.length) {
       el.innerHTML = `<tbody><tr><td class="empty-note">등록된 인건비 집행 내역이 없습니다.</td></tr></tbody>`;
