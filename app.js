@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const STORAGE_KEY = "biz-dashboard-data-v8";
+  const STORAGE_KEY = "biz-dashboard-data-v9";
   const THEME_KEY = "biz-dashboard-theme";
   const CATEGORIES = ["인건비", "연구재료비", "연구활동비", "기타"];
   const ITEMIZED_CATEGORIES = ["연구재료비", "연구활동비"];
@@ -209,23 +209,32 @@
     };
     employees.push(unassignedLaborEmployee);
 
-    const L = (month, amount, memo) => ({
+    const L = (month, type, amount, memo) => ({
       id: uid(),
       employeeId: unassignedLaborEmployee.id,
       projectId: weakTechProject.id,
       month,
+      type,
       amount,
       memo,
     });
     const laborEntries = [
-      L("2026-05", 2575010, "내부인건비 집행(2026-05-07 15:22:52)"),
-      L("2026-05", 2575010, "내부인건비 집행(2026-05-07 15:22:50)"),
-      L("2026-05", 7375010, "내부인건비 집행(2026-05-07 15:22:48)"),
-      L("2026-05", 7375010, "내부인건비 집행(2026-05-07 15:22:47)"),
-      L("2026-05", 12215010, "내부인건비 집행(2026-05-07 15:22:45)"),
-      L("2026-05", 12215010, "내부인건비 집행(2026-05-07 15:22:43)"),
-      L("2026-05", 11573340, "내부인건비 집행(2026-05-07 15:22:42)"),
-      L("2026-05", 11573340, "내부인건비 집행(2026-05-07 15:22:40)"),
+      L("2026-05", "현금", 2575010, "내부인건비 집행(2026-05-07 15:22:52)"),
+      L("2026-05", "현금", 2575010, "내부인건비 집행(2026-05-07 15:22:50)"),
+      L("2026-05", "현금", 7375010, "내부인건비 집행(2026-05-07 15:22:48)"),
+      L("2026-05", "현금", 7375010, "내부인건비 집행(2026-05-07 15:22:47)"),
+      L("2026-05", "현금", 12215010, "내부인건비 집행(2026-05-07 15:22:45)"),
+      L("2026-05", "현금", 12215010, "내부인건비 집행(2026-05-07 15:22:43)"),
+      L("2026-05", "현금", 11573340, "내부인건비 집행(2026-05-07 15:22:42)"),
+      L("2026-05", "현금", 11573340, "내부인건비 집행(2026-05-07 15:22:40)"),
+      L("2025-09", "현물", 3360000, "현물 등록"),
+      L("2025-10", "현물", 3360000, "현물 등록"),
+      L("2025-11", "현물", 3360000, "현물 등록"),
+      L("2025-12", "현물", 3360000, "현물 등록"),
+      L("2026-01", "현물", 3780000, "현물 등록"),
+      L("2026-02", "현물", 3780000, "현물 등록"),
+      L("2026-03", "현물", 3780000, "현물 등록"),
+      L("2026-04", "현물", 3780000, "현물 등록"),
     ];
 
     return { projects, employees, laborEntries };
@@ -270,10 +279,18 @@
   function budgetTotal(p) {
     return (p.budget.governmentFund || 0) + (p.budget.selfFund || 0);
   }
-  function laborSpentForProject(p) {
+  function laborCashSpent(p) {
     return laborEntries
-      .filter((le) => le.projectId === p.id)
+      .filter((le) => le.projectId === p.id && le.type !== "현물")
       .reduce((sum, le) => sum + (Number(le.amount) || 0), 0);
+  }
+  function laborInKindSpent(p) {
+    return laborEntries
+      .filter((le) => le.projectId === p.id && le.type === "현물")
+      .reduce((sum, le) => sum + (Number(le.amount) || 0), 0);
+  }
+  function laborSpentForProject(p) {
+    return laborCashSpent(p) + laborInKindSpent(p);
   }
   function spentAmount(p) {
     const expenseTotal = p.expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
@@ -1112,6 +1129,7 @@
       employeeId: form.employeeId.value,
       projectId: form.projectId.value,
       month: form.month.value,
+      type: form.type.value || "현금",
       amount: Number(form.amount.value) || 0,
       memo: form.memo.value.trim(),
     });
@@ -1126,7 +1144,7 @@
   function renderLaborEntries() {
     const tbody = document.querySelector("#labor-entries-table tbody");
     if (!laborEntries.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="empty-note">등록된 인건비 집행 내역이 없습니다.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="empty-note">등록된 인건비 집행 내역이 없습니다.</td></tr>`;
       return;
     }
     const empById = Object.fromEntries(employees.map((e) => [e.id, e]));
@@ -1141,6 +1159,7 @@
           <td>${escapeHtml(le.month || "")}</td>
           <td>${escapeHtml(emp ? emp.name : "(삭제된 직원)")}</td>
           <td>${escapeHtml(proj ? proj.name : "(삭제된 프로젝트)")}</td>
+          <td>${le.type === "현물" ? "현물" : "현금"}</td>
           <td class="num">${fmtWon(le.amount)}</td>
           <td>${escapeHtml(le.memo || "")}</td>
           <td><button class="row-delete" data-del-labor="${le.id}" title="삭제">✕</button></td>
@@ -1162,7 +1181,7 @@
   function renderLaborBalanceTable() {
     const tbody = document.querySelector("#labor-balance-table tbody");
     if (!projects.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="empty-note">등록된 프로젝트가 없습니다.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" class="empty-note">등록된 프로젝트가 없습니다.</td></tr>`;
       return;
     }
     tbody.innerHTML = projects
@@ -1170,10 +1189,12 @@
         const lb = p.laborBudget || { cash: 0, inKind: 0 };
         const cashBudget = Number(lb.cash) || 0;
         const inKindBudget = Number(lb.inKind) || 0;
-        const executed = laborSpentForProject(p);
-        const govSpent = Math.min(executed, Number(p.budget.governmentFund) || 0);
-        const selfCashSpent = executed - govSpent;
-        const cashRemaining = cashBudget - executed;
+        const cashExecuted = laborCashSpent(p);
+        const inKindExecuted = laborInKindSpent(p);
+        const govSpent = Math.min(cashExecuted, Number(p.budget.governmentFund) || 0);
+        const selfCashSpent = cashExecuted - govSpent;
+        const cashRemaining = cashBudget - cashExecuted;
+        const inKindRemaining = inKindBudget - inKindExecuted;
         return `
         <tr data-labor-balance-row="${p.id}">
           <td>${escapeHtml(p.name)}</td>
@@ -1182,7 +1203,8 @@
           <td class="num">${fmtWon(govSpent)}</td>
           <td class="num">${fmtWon(selfCashSpent)}</td>
           <td class="num" style="${cashRemaining < 0 ? "color:var(--critical); font-weight:700;" : ""}">${fmtWon(cashRemaining)}</td>
-          <td class="num">${fmtWon(inKindBudget)}</td>
+          <td class="num">${fmtWon(inKindExecuted)}</td>
+          <td class="num" style="${inKindRemaining < 0 ? "color:var(--critical); font-weight:700;" : ""}">${fmtWon(inKindRemaining)}</td>
         </tr>`;
       })
       .join("");
