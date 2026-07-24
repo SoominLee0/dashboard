@@ -725,23 +725,46 @@
       return;
     }
     const sorted = [...p.budgetItems].sort((a, b) => a.category.localeCompare(b.category));
+    const sel = (item) =>
+      ITEMIZED_CATEGORIES.map((c) => `<option value="${c}"${item.category === c ? " selected" : ""}>${c}</option>`).join("");
+    const inp = (item, field, type, width, extra = "") =>
+      `<input type="${type}" class="input" style="width:${width};" data-budget-item-field="${field}" data-item-id="${item.id}" value="${escapeHtml(item[field] ?? "")}" ${extra} />`;
     tbody.innerHTML = sorted
       .map(
         (item) => `
       <tr data-budget-item-id="${item.id}">
-        <td>${escapeHtml(item.category)}</td>
-        <td>${escapeHtml(item.name)}</td>
-        <td>${escapeHtml(item.usage || "")}</td>
-        <td class="num">${item.quantity || ""}</td>
-        <td class="num">${fmtWon(item.cash || 0)}</td>
-        <td class="num">${fmtWon(item.inKind || 0)}</td>
-        <td>${escapeHtml(item.period || "")}</td>
-        <td>${escapeHtml(item.location || "")}</td>
+        <td><select class="input" data-budget-item-field="category" data-item-id="${item.id}">${sel(item)}</select></td>
+        <td>${inp(item, "name", "text", "150px")}</td>
+        <td>${inp(item, "usage", "text", "150px")}</td>
+        <td>${inp(item, "quantity", "number", "70px", 'min="0" step="1"')}</td>
+        <td>${inp(item, "cash", "number", "110px", 'min="0" step="10"')}</td>
+        <td>${inp(item, "inKind", "number", "110px", 'min="0" step="10"')}</td>
+        <td>${inp(item, "period", "text", "110px")}</td>
+        <td>${inp(item, "location", "text", "100px")}</td>
         <td><button class="row-delete" data-del-budget-item="${item.id}" title="삭제">✕</button></td>
       </tr>`
       )
       .join("");
   }
+
+  document.querySelector("#budget-item-table tbody").addEventListener("change", (e) => {
+    const input = e.target.closest("[data-budget-item-field]");
+    if (!input) return;
+    const p = getActiveProject();
+    if (!p) return;
+    const item = (p.budgetItems || []).find((x) => x.id === input.dataset.itemId);
+    if (!item) return;
+    const field = input.dataset.budgetItemField;
+    if (field === "category" || field === "name" || field === "usage" || field === "period" || field === "location") {
+      item[field] = input.value.trim();
+    } else {
+      item[field] = Number(input.value) || 0;
+    }
+    persist();
+    renderBudgetItemsTable(p);
+    renderCategoryBudgetTable(p);
+    renderAll();
+  });
 
   formBudgetItem.addEventListener("submit", (e) => {
     e.preventDefault();
